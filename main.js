@@ -44,3 +44,32 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
+
+// MEMBUAT LANTAI & DINDING KAMAR
+const roomSize = 8;
+const wallHeight = 3.5;
+
+// A. Lantai Kamar
+const floorGeo = new THREE.BoxGeometry(roomSize, 0.2, roomSize);
+const floorMat = new THREE.MeshStandardMaterial({ color: 0xe3cca8 });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.position.y = -0.1;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// Material untuk dinding
+const wallMat = new THREE.MeshStandardMaterial({ color: 0xfaf8f5, roughness: 0.9 });
+
+// B. Dinding Belakang
+const backWallGeo = new THREE.BoxGeometry(roomSize, wallHeight, 0.2);
+const backWall = new THREE.Mesh(backWallGeo, wallMat);
+backWall.position.set(0, wallHeight / 2, -roomSize / 2);
+backWall.receiveShadow = true;
+scene.add(backWall);
+
+// C. Dinding Samping Kiri
+const leftWallGeo = new THREE.BoxGeometry(0.2, wallHeight, roomSize);
+const leftWall = new THREE.Mesh(leftWallGeo, wallMat);
+leftWall.position.set(-roomSize / 2, wallHeight / 2, 0);
+leftWall.receiveShadow = true;
+scene.add(leftWall);

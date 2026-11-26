@@ -144,6 +144,58 @@ assetFiles.forEach(item => {
   });
 });
 
+// --- UI INTERAKTIVITAS & KONTROL ---
+// 1. Kamera Views
+document.getElementById('btn-front').addEventListener('click', () => {
+  camera.position.set(0, 2, 7);
+  controls.target.set(0, 1, 0);
+  controls.enabled = false;
+});
+
+document.getElementById('btn-top').addEventListener('click', () => {
+  camera.position.set(0, 10, 0);
+  controls.target.set(0, 0, 0);
+  controls.enabled = false;
+});
+
+document.getElementById('btn-orbit').addEventListener('click', () => {
+  camera.position.set(0, 5, 10);
+  controls.target.set(0, 0, 0);
+  controls.enabled = true;
+});
+
+// 2. Mode Siang / Malam
+let isNight = false;
+const btnMode = document.getElementById('btn-mode');
+btnMode.addEventListener('click', () => {
+  isNight = !isNight;
+  if (isNight) {
+    scene.background = new THREE.Color(0x0a1128);
+    ambientLight.intensity = 0.3;
+    dirLight.intensity = 0.5;
+    btnMode.innerText = "Mode: Malam";
+  } else {
+    scene.background = new THREE.Color(0xbfe3ff);
+    ambientLight.intensity = 3;
+    dirLight.intensity = 2;
+    btnMode.innerText = "Mode: Siang";
+  }
+});
+
+// 3. Slider Intensitas & Warna Cahaya
+const rangeIntensity = document.getElementById('range-intensity');
+const valIntensity = document.getElementById('val-intensity');
+rangeIntensity.addEventListener('input', (e) => {
+  const val = parseFloat(e.target.value);
+  dirLight.intensity = val;
+  valIntensity.innerText = val.toFixed(1);
+});
+
+const selectColor = document.getElementById('select-color');
+selectColor.addEventListener('change', (e) => {
+  dirLight.color.set(e.target.value);
+});
+
 // D. Dinding Samping Kanan
 const rightWallGeo = new THREE.BoxGeometry(0.2, wallHeight, roomSize);
 const rightWall = new THREE.Mesh(rightWallGeo, wallMat);

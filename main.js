@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
 // Setup Scene, Camera, Renderer
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xbfe3ff); // Default Day Mode background
@@ -30,21 +32,6 @@ dirLight.shadow.mapSize.width = 1024;
 dirLight.shadow.mapSize.height = 1024;
 scene.add(dirLight);
 
-// Window Resize Handler
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Animation Loop
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-}
-animate();
-
 // MEMBUAT LANTAI & DINDING KAMAR
 const roomSize = 8;
 const wallHeight = 3.5;
@@ -73,3 +60,108 @@ const leftWall = new THREE.Mesh(leftWallGeo, wallMat);
 leftWall.position.set(-roomSize / 2, wallHeight / 2, 0);
 leftWall.receiveShadow = true;
 scene.add(leftWall);
+
+// --- PENYIMPANAN OBJEK 3D ---
+const objectsMap = {
+  bed: null,
+  wardrobe: null,
+  desk: null,
+  window: null,
+  lamp: null,
+  frame1: null,
+  frame2: null,
+  frame3: null
+};
+
+// Loading Textures & Models
+const loader = new GLTFLoader();
+const loadingEl = document.getElementById('loader');
+let loadedCount = 0;
+const totalAssets = 8;
+
+function checkLoading() {
+  loadedCount++;
+  if (loadedCount >= totalAssets) {
+    loadingEl.style.opacity = '0';
+    setTimeout(() => loadingEl.remove(), 500);
+  }
+}
+
+// Load 3 Tekstur Foto Anggota
+const textureLoader = new THREE.TextureLoader();
+const texture1 = textureLoader.load('textures/dinar.jpg', () => applyPhotoTexture(objectsMap.frame1, texture1));
+const texture2 = textureLoader.load('textures/mega.jpg', () => applyPhotoTexture(objectsMap.frame2, texture2));
+const texture3 = textureLoader.load('textures/foto3.jpg', () => applyPhotoTexture(objectsMap.frame3, texture3));
+
+function applyPhotoTexture(model, texture) {
+  if (!model) return;   
+  model.traverse((child) => {
+    if (child.isMesh) {
+      child.material = new THREE.MeshStandardMaterial({
+        map: texture,
+        roughness: 0.2
+      });
+    }
+  });
+}
+
+// layout awal asset 3d
+const assetFiles = [
+  { key: 'wardrobe', path: 'assets/wardrobe.glb', pos: [2.5, 0, -3.3] }, 
+  { key: 'bed', path: 'assets/bed.glb', pos: [-1.6, 0, -2.5] },          
+  { key: 'lamp', path: 'assets/lamp.glb', pos: [-0.1, 0, -3.4] },        
+  { key: 'window', path: 'assets/window.glb', pos: [-3.5, 2, 1.4] },     
+  { key: 'desk', path: 'assets/desk.glb', pos: [-3.5, 0, 1.3] },         
+  { key: 'frame1', path: 'assets/frame1.glb', pos: [-0.6, 2.5, -3.9] },  
+  { key: 'frame2', path: 'assets/frame2.glb', pos: [-2.8, 2.5, -3.9] },  
+  { key: 'frame3', path: 'assets/frame3.glb', pos: [-1.7, 2.5, -3.9] }   
+];      
+
+assetFiles.forEach(item => {
+  loader.load(item.path, (gltf) => {
+    const obj = gltf.scene;
+    obj.position.set(...item.pos);
+    obj.scale.set(1, 1, 1);
+    obj.castShadow = true;
+    obj.receiveShadow = true;
+    
+    if (item.key === 'frame1') applyPhotoTexture(obj, texture1);
+    if (item.key === 'frame2') applyPhotoTexture(obj, texture2);
+    if (item.key === 'frame3') applyPhotoTexture(obj, texture3);
+
+    scene.add(obj);
+    objectsMap[item.key] = obj;
+    checkLoading();
+  }, undefined, (error) => {
+    console.warn(`Gagal memuat ${item.path}, menggunakan fallback box.`, error);
+    const geo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+    const mat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+    const fallbackMesh = new THREE.Mesh(geo, mat);
+    fallbackMesh.position.set(...item.pos);
+    scene.add(fallbackMesh);
+    objectsMap[item.key] = fallbackMesh;
+    checkLoading();
+  });
+});
+
+// D. Dinding Samping Kanan
+const rightWallGeo = new THREE.BoxGeometry(0.2, wallHeight, roomSize);
+const rightWall = new THREE.Mesh(rightWallGeo, wallMat);
+rightWall.position.set(roomSize / 2, wallHeight / 2, 0);
+rightWall.receiveShadow = true;
+scene.add(rightWall);
+
+// Window Resize Handler
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Animation Loop
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();

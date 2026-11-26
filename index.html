@@ -20,6 +20,63 @@
   <!-- Loading Indicator -->
   <div id="loader">Memuat Aset 3D & Tekstur...</div>
 
+  <!-- Panel Kontrol UI -->
+  <div id="ui-container">
+    <h2>Vintage Bedroom 3D</h2>
+    
+    <div class="control-group">
+      <h3>Kamera View</h3>
+      <button id="btn-front">Front View</button>
+      <button id="btn-top">Top View</button>
+      <button id="btn-orbit">Orbit Mode</button>
+    </div>
+
+    <div class="control-group">
+      <h3>Suasana</h3>
+      <button id="btn-mode">Mode: Siang</button>
+    </div>
+
+    <div class="control-group">
+      <h3>Pencahayaan</h3>
+      <label>Intensitas: <span id="val-intensity">3.0</span></label>
+      <input type="range" id="range-intensity" min="0" max="5" step="0.1" value="3" />
+      
+      <label>Warna Cahaya:</label>
+      <select id="select-color">
+        <option value="#ffffff">Putih (Default)</option>
+        <option value="#fff4d6">Kuning Hangat</option>
+        <option value="#bfe3ff">Biru Sejuk</option>
+        <option value="#ffb74d">Oranye Senja</option>
+      </select>
+    </div>
+
+    <div class="control-group"> 
+      <h3>Transformasi Objek (Pilih & Ubah)</h3>
+      <select id="select-object">
+        <option value="bed">Kasur (Bed)</option>
+        <option value="wardrobe">Lemari (Wardrobe)</option>
+        <option value="desk">Meja + Kursi (Desk)</option>
+        <option value="window">Jendela (Window)</option>
+        <option value="lamp">Lampu Lantai (Lamp)</option>
+        <option value="frame1">Figura 1 (Anggota 1)</option>
+        <option value="frame2">Figura 2 (Anggota 2)</option>
+        <option value="frame3">Figura 3 (Anggota 3)</option>
+      </select>
+      
+      <label>Geser X (Kiri/Kanan): <span id="val-posx">0</span></label>
+      <input type="range" id="range-posx" min="-3.5" max="3.5" step="0.1" value="0" />
+
+      <label>Geser Z (Depan/Belakang): <span id="val-posz">0</span></label>
+      <input type="range" id="range-posz" min="-3.4" max="3.4" step="0.1" value="0" />
+
+      <label>Rotasi Y (Putar): <span id="val-roty">0</span>°</label>
+      <input type="range" id="range-roty" min="0" max="360" step="1" value="0" />
+
+      <label>Skala (Ukuran): <span id="val-scale">1.0</span></label>
+      <input type="range" id="range-scale" min="0.5" max="2" step="0.1" value="1" />
+    </div>
+  </div>
+
   <!-- Main Script -->
   <script type="module" src="main.js"></script>
 </body>

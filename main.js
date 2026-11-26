@@ -196,6 +196,85 @@ selectColor.addEventListener('change', (e) => {
   dirLight.color.set(e.target.value);
 });
 
+// 4. Transformasi Objek dengan Batasan Anti-Tembus Dinding & Lantai
+const selectObject = document.getElementById('select-object');
+const rangePosX = document.getElementById('range-posx');
+const rangePosZ = document.getElementById('range-posz');
+const rangeRotY = document.getElementById('range-roty');
+const rangeScale = document.getElementById('range-scale');
+const valPosX = document.getElementById('val-posx');
+const valPosZ = document.getElementById('val-posz');
+const valRotY = document.getElementById('val-roty');
+const valScale = document.getElementById('val-scale');
+
+// Fungsi untuk memperbarui posisi slider sesuai dengan objek yang sedang dipilih
+function updateControlValues() {
+  const activeObjKey = selectObject.value;
+  const obj = objectsMap[activeObjKey];
+  if (obj) {
+    rangePosX.value = obj.position.x;
+    valPosX.innerText = obj.position.x.toFixed(1);
+    
+    rangePosZ.value = obj.position.z;
+    valPosZ.innerText = obj.position.z.toFixed(1);
+    
+    const rotDeg = THREE.MathUtils.radToDeg(obj.rotation.y) % 360;
+    rangeRotY.value = rotDeg >= 0 ? rotDeg : rotDeg + 360;
+    valRotY.innerText = Math.round(rangeRotY.value);
+
+    rangeScale.value = obj.scale.x;
+    valScale.innerText = obj.scale.x.toFixed(1);
+  }
+}
+
+selectObject.addEventListener('change', updateControlValues);
+
+// Fungsi pembatas agar objek tidak keluar dari batas ruangan (-3.5 s/d 3.5)
+function clampPosition(val) {
+  const limit = 3.5;
+  return Math.max(-limit, Math.min(limit, val));
+}
+
+rangePosX.addEventListener('input', (e) => {
+  const obj = objectsMap[selectObject.value];
+  if (obj) {
+    let newX = parseFloat(e.target.value);
+    newX = clampPosition(newX);
+    obj.position.x = newX;
+    rangePosX.value = newX;
+    valPosX.innerText = newX.toFixed(1);
+  }
+});
+
+rangePosZ.addEventListener('input', (e) => {
+  const obj = objectsMap[selectObject.value];
+  if (obj) {
+    let newZ = parseFloat(e.target.value);
+    newZ = clampPosition(newZ);
+    obj.position.z = newZ;
+    rangePosZ.value = newZ;
+    valPosZ.innerText = newZ.toFixed(1);
+  }
+});
+
+rangeRotY.addEventListener('input', (e) => {
+  const obj = objectsMap[selectObject.value];
+  if (obj) {
+    const deg = parseFloat(e.target.value);
+    obj.rotation.y = THREE.MathUtils.degToRad(deg);
+    valRotY.innerText = Math.round(deg);
+  }
+});
+
+rangeScale.addEventListener('input', (e) => {
+  const obj = objectsMap[selectObject.value];
+  if (obj) {
+    const scl = parseFloat(e.target.value);
+    obj.scale.set(scl, scl, scl);
+    valScale.innerText = scl.toFixed(1);
+  }
+});
+
 // D. Dinding Samping Kanan
 const rightWallGeo = new THREE.BoxGeometry(0.2, wallHeight, roomSize);
 const rightWall = new THREE.Mesh(rightWallGeo, wallMat);
@@ -209,6 +288,15 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+function checkLoading() {
+  loadedCount++;
+  if (loadedCount >= totalAssets) {
+    loadingEl.style.opacity = '0';
+    setTimeout(() => loadingEl.remove(), 500);
+    updateControlValues(); // Sinkronkan slider setelah objek termuat
+  }
+}
 
 // Animation Loop
 function animate() {
